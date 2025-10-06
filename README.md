@@ -1,7 +1,7 @@
 ## steps to reproduce
 
 ### clone
-git clone 
+git clone https://github.com/buuuuuuug/pycrypto_graalpy.git
 
 ### versions
 mvn --version
