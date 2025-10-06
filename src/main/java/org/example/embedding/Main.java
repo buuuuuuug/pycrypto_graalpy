@@ -82,13 +82,9 @@ public class Main {
                     }
                     var evalued = context.eval("python", """
                             try:
-                                print("00000")
                                 from Crypto.Cipher import AES
-                                print("11111")
                                 from Crypto.Random import get_random_bytes
-                                print("22222")
                                 from Crypto.Protocol.KDF import PBKDF2
-                                print("33333")
                                 crypto_available = True
                             except ImportError:
                                 crypto_available = False

@@ -49,11 +49,16 @@ import org.junit.Test;
 public class EmbeddingTest {
 	
 	@Test
-	public void test() throws IOException {
+	public void testSuccess() throws IOException {
 		// success
 		Main.main(new String[1]);
+	}
+
+	@Test
+	public void testFail() throws IOException {
 		// fail
 		Main.main(new String[0]);
 	}
+
 
 }
