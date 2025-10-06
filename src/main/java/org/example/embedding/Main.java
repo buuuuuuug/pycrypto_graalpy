@@ -43,9 +43,14 @@ package org.example.embedding;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
+import org.graalvm.python.embedding.GraalPyResources;
+import org.graalvm.python.embedding.VirtualFileSystem;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -54,32 +59,72 @@ import java.util.Set;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        try (Context context = Context.newBuilder().allowAllAccess(true).build()) {
+        Path externalResourceDirectoryPath = Paths.get("fs");
+        GraalPyResources.extractVirtualFileSystemResources(VirtualFileSystem.create(), externalResourceDirectoryPath);
+        try (Context context = GraalPyResources
+                .contextBuilder(externalResourceDirectoryPath)
+                .option("python.PosixModuleBackend", "native")
+                .allowAllAccess(true).build()) {
             Set<String> languages = context.getEngine().getLanguages().keySet();
             for (String id : languages) {
                 System.out.println("Initializing language " + id);
                 context.initialize(id);
-                switch (id) {
-                    case "python":
-                        context.eval("python", "print('Hello Python!')");
-                        break;
-                    case "js":
-                        context.eval("js", "print('Hello JavaScript!');");
-                        break;
-                    case "ruby":
-                        context.eval("ruby", "puts 'Hello Ruby!'");
-                        break;
-                    case "wasm":
-                        // with wasm we compute factorial
-                        context.eval(Source.newBuilder("wasm", Main.class.getResource("factorial.wasm")).name("main").build());
-                        Value factorial = context.getBindings("wasm").getMember("main").getMember("fac");
-                        System.out.println("wasm: factorial(20) = " + factorial.execute(20L));
-                        break;
-                    case "java":
-                        // with Java we invoke System.out.println reflectively.
-                        Value out = context.getBindings("java").getMember("java.lang.System").getMember("out");
-                        out.invokeMember("println", "Hello Espresso Java!");
-                        break;
+                if (id.equals("python")) {
+                    context.eval("python", "print('#####################')");
+                    context.eval("python", "import ijson");
+                    if (args.length > 0) {
+                        System.out.println("got here");
+                        context.eval("python", """
+                            import psutil
+                            pids = psutil.pids()
+                            print(len(pids))
+                            """);
+                    }
+                    var evalued = context.eval("python", """
+                            try:
+                                print("00000")
+                                from Crypto.Cipher import AES
+                                print("11111")
+                                from Crypto.Random import get_random_bytes
+                                print("22222")
+                                from Crypto.Protocol.KDF import PBKDF2
+                                print("33333")
+                                crypto_available = True
+                            except ImportError:
+                                crypto_available = False
+                            
+                            def start():
+                                # Test PyCryptodome functionality
+                                if not crypto_available:
+                                    return "Error: PyCryptodome (Crypto) not available"
+                            
+                                try:
+                                    # Test basic AES encryption
+                                    key = get_random_bytes(16)
+                                    cipher = AES.new(key, AES.MODE_EAX)
+                                    data = "Hello, World!".encode('utf-8')
+                                    ciphertext, tag = cipher.encrypt_and_digest(data)
+                            
+                                    # Test PBKDF2
+                                    password = "my_password"
+                                    salt = get_random_bytes(16)
+                                    derived_key = PBKDF2(password, salt, 32)
+                            
+                                    result = {
+                                        "aes_key_length": len(key),
+                                        "ciphertext_length": len(ciphertext),
+                                        "tag_length": len(tag),
+                                        "derived_key_length": len(derived_key),
+                                        "crypto_version": "Available"
+                                    }
+                            
+                                    return result
+                                except Exception as e:
+                                    return f"Error: {str(e)}"
+                            """);
+                    Value executed = evalued.getMember("start").execute();
+                    Map<String, Object> map = executed.as(Map.class);
+                    System.out.println(map);
                 }
             }
         }

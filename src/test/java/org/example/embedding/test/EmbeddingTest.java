@@ -41,21 +41,18 @@
 package org.example.embedding.test;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
-
 import java.io.IOException;
-import java.math.BigInteger;
 
 import org.example.embedding.Main;
-import org.graalvm.polyglot.Context;
 import org.junit.Test;
 
 public class EmbeddingTest {
 	
 	@Test
 	public void test() throws IOException {
-		// add tests here
+		// success
+		Main.main(new String[1]);
+		// fail
 		Main.main(new String[0]);
 	}
 
