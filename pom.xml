@@ -32,6 +32,11 @@
             <artifactId>python-embedding</artifactId>
             <version>${graalvm.version}</version>
         </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.17.1</version>
+        </dependency>
         <!-- Use the JUnit version of your choice. -->
         <dependency>
             <groupId>junit</groupId>
@@ -61,7 +66,7 @@
                                 <package>psutil==5.9.8</package>
                                 <package>ijson==3.4.0</package>
                                 <package>future==1.0.0</package>
-                                <package>pycryptodome==3.22.0</package>
+                                <package>cryptography==44.0.2</package>
                             </packages>
                         </configuration>
                         <goals>

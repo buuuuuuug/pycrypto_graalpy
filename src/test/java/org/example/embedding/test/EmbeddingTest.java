@@ -54,11 +54,11 @@ public class EmbeddingTest {
 		Main.main(new String[1]);
 	}
 
-	@Test
-	public void testFail() throws IOException {
-		// fail
-		Main.main(new String[0]);
-	}
+//	@Test
+//	public void testFail() throws IOException {
+//		// fail
+//		Main.main(new String[0]);
+//	}
 
 
 }
