@@ -26,26 +26,7 @@ public class EmbeddingTest {
 	@Test
 	public void testSuccess() throws IOException {
 		// success
-		Main.main(new String[1]);
-	}
-
-	@Test
-	public void testFail() throws IOException {
-		// fail
 		Main.main(new String[0]);
 	}
-
-
-}
-```
-testSuccess will hit the following branch while testFail won't
-```java
-if (args.length > 0) {
-    System.out.println("got here");
-    context.eval("python", """
-    import psutil
-    pids = psutil.pids()
-    print(len(pids))
-    """);
 }
 ```
