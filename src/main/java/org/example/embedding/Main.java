@@ -29,7 +29,7 @@ public class Main {
             System.out.printf("===============%s============%n", i);
             Context defaultContext = getPrivateContext("default:" + i);
             test(defaultContext);
-//            defaultContext.close(true);
+            defaultContext.close(true);
         }
     }
 
