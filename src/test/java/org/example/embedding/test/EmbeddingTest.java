@@ -51,7 +51,7 @@ public class EmbeddingTest {
 	@Test
 	public void testSuccess() throws IOException {
 		// success
-		Main.main(new String[1]);
+		Main.main(new String[0]);
 	}
 
 //	@Test

@@ -2,6 +2,7 @@ package org.example.embedding;
 
 import org.apache.commons.codec.binary.Hex;
 import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.Value;
 import org.graalvm.python.embedding.GraalPyResources;
 import org.graalvm.python.embedding.VirtualFileSystem;
@@ -10,39 +11,46 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A basic polyglot application that tries to exercise a simple hello world style program in all installed languages.
  */
 public class Main {
+    private static final Map<String, Context> contextCache = new ConcurrentHashMap<>();
+    private static final Path externalResourceDirectoryPath = Paths.get("fs");
+    private static final Engine engine = Engine.newBuilder("python").build();
 
     public static void main(String[] args) throws IOException {
-        Path externalResourceDirectoryPath = Paths.get("fs");
         GraalPyResources.extractVirtualFileSystemResources(VirtualFileSystem.create(), externalResourceDirectoryPath);
-        try (Context context = GraalPyResources
-                .contextBuilder(externalResourceDirectoryPath)
+        for (int i = 0; i < 10; i++) {
+            System.out.printf("===============%s============%n", i);
+            Context defaultContext = getPrivateContext("default:" + i);
+            test(defaultContext);
+//            defaultContext.close(true);
+        }
+    }
+
+    private static Context getPrivateContext(String name) {
+        return contextCache.computeIfAbsent(name, _ -> GraalPyResources.contextBuilder(externalResourceDirectoryPath)
+                .engine(engine)
                 .option("python.PosixModuleBackend", "native")
                 .option("python.IsolateNativeModules", "true")
                 .allowAllAccess(true)
                 .allowExperimentalOptions(true)
-                // 避免关于 native module 的告警信息
-                .option("python.WarnExperimentalFeatures", "false").build()) {
+                .option("python.WarnExperimentalFeatures", "false")
+                .build());
+    }
+
+    private static void test(Context context) {
+        try {
             Set<String> languages = context.getEngine().getLanguages().keySet();
             for (String id : languages) {
                 System.out.println("Initializing language " + id);
                 context.initialize(id);
                 if (id.equals("python")) {
-                    context.eval("python", "print('#####################')");
-                    context.eval("python", "import ijson");
-                    if (args.length > 0) {
-                        System.out.println("got here");
-                        context.eval("python", """
-                            import psutil
-                            pids = psutil.pids()
-                            print(len(pids))
-                            """);
-                    }
                     var evalued = context.eval("python", """
                             import binascii
                             def decryptAES_cryptography(data, key, salt):
@@ -88,6 +96,8 @@ public class Main {
 
                 }
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
