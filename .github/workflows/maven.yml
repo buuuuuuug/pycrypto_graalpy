@@ -18,7 +18,7 @@ on:
 jobs:
   build:
     # 修改运行环境为 Ubuntu 22.04 ARM64 架构
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-arm
     strategy:
       matrix:
         architecture: [ arm64 ]
