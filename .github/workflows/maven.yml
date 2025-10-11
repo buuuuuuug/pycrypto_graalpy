@@ -17,15 +17,13 @@ on:
 
 jobs:
   build:
-    # 修改运行环境为 Ubuntu 22.04 ARM64 架构
-    runs-on: ubuntu-22.04-arm
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         architecture: [ arm64 ]
 
     steps:
       - uses: actions/checkout@v4
-      # 添加系统信息检查步骤
       - name: Check system information
         run: |
           echo "Operating System: $(uname -a)"
