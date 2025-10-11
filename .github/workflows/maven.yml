@@ -25,6 +25,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      # 添加系统信息检查步骤
+      - name: Check system information
+        run: |
+          echo "Operating System: $(uname -a)"
+          echo "Architecture: $(uname -m)"
+          echo "Distribution: $(lsb_release -d)"
       - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
