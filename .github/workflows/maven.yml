@@ -6,6 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
+# .github/workflows/maven.yml
 name: Java CI with Maven
 
 on:
@@ -16,16 +17,19 @@ on:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    # 修改运行环境为 Ubuntu 22.04 ARM64 架构
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        architecture: [ arm64 ]
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 25
-      uses: actions/setup-java@v4
-      with:
-        java-version: '25'
-        distribution: 'graalvm'
-        cache: maven
-    - name: Build with Maven
-      run: mvn test -Dtest=EmbeddingTest#testFail --file pom.xml
+      - uses: actions/checkout@v4
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'graalvm'
+          cache: maven
+      - name: Build with Maven
+        run: mvn test -Dtest=EmbeddingTest#testFail --file pom.xml
